@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi Trainer</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px;
+        background: #111;
+        color: white;
+    }
+    input {
+        font-size: 24px;
+        text-align: center;
+        width: 60px;
+    }
+    .hearts {
+        font-size: 28px;
+        margin: 10px;
+    }
+    .digit-display {
+        font-size: 20px;
+        margin: 15px;
+        color: #aaa;
+    }
+    button {
+        padding: 8px 16px;
+        font-size: 16px;
+        margin: 5px;
+    }
+</style>
+</head>
+<body>
+
+<h1>π Trainer</h1>
+
+<div>
+    Start at digit:
+    <input type="number" id="startIndex" value="1" min="1">
+    <button onclick="startGame()">Start</button>
+</div>
+
+<div class="hearts" id="hearts"></div>
+
+<div>
+    Next digit:
+    <div id="nextDigit" style="font-size: 40px; margin: 10px;"></div>
+</div>
+
+<input type="text" id="userInput" maxlength="1" disabled>
+
+<div class="digit-display">
+    Current Position: <span id="position"></span>
+</div>
+
+<script>
+const piDigits =
+"3141592653589793238462643383279502884197169399375105820974944592" +
+"3078164062862089986280348253421170679821480865132823066470938446" +
+"0955058223172535940812848111745028410270193852110555964462294895";
+
+let currentIndex = 0;
+let lives = 3;
+let gameActive = false;
+
+function updateHearts() {
+    document.getElementById("hearts").innerText =
+        "❤️".repeat(lives) + "🖤".repeat(3 - lives);
+}
+
+function startGame() {
+    const start = parseInt(document.getElementById("startIndex").value) - 1;
+
+    if (start < 0 || start >= piDigits.length) {
+        alert("Invalid start position.");
+        return;
+    }
+
+    currentIndex = start;
+    lives = 3;
+    gameActive = true;
+
+    updateHearts();
+    updateDisplay();
+
+    const input = document.getElementById("userInput");
+    input.disabled = false;
+    input.value = "";
+    input.focus();
+}
+
+function updateDisplay() {
+    document.getElementById("nextDigit").innerText =
+        piDigits[currentIndex];
+    document.getElementById("position").innerText =
+        currentIndex + 1;
+}
+
+document.getElementById("userInput").addEventListener("input", function(e) {
+    if (!gameActive) return;
+
+    const guess = e.target.value;
+    e.target.value = "";
+
+    if (guess === piDigits[currentIndex]) {
+        currentIndex++;
+        if (currentIndex >= piDigits.length) {
+            alert("You reached the end!");
+            gameActive = false;
+            return;
+        }
+    } else {
+        lives--;
+        updateHearts();
+        if (lives === 0) {
+            alert("Game over!");
+            gameActive = false;
+            document.getElementById("userInput").disabled = true;
+            return;
+        }
+    }
+
+    updateDisplay();
+});
+</script>
+
+</body>
+</html>
