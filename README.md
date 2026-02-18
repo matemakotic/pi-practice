@@ -1,0 +1,2 @@
+# pi-practice
+memorize pi
