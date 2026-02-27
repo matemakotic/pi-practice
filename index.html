@@ -43,8 +43,6 @@
         width: 100%;
         height: 100%;
         background: #3b82f6;
-        position: absolute;
-        top: 0;
     }
 
     /* Desktop */
@@ -85,54 +83,52 @@
 <script>
 let typedNumbers = "";
 let timerBar = document.getElementById("timerBar");
-let timerInterval;
+
 let startTime;
 const duration = 5000; // 5 seconds
+let animationFrame;
 
-function startTimer() {
-    startTime = Date.now();
-    clearInterval(timerInterval);
+function animateTimer() {
+    let elapsed = Date.now() - startTime;
+    let progress = elapsed / duration;
 
-    timerInterval = setInterval(() => {
-        let elapsed = Date.now() - startTime;
-        let progress = elapsed / duration;
+    if (progress >= 1) {
+        progress = 1;
+    }
 
-        if (progress >= 1) {
-            progress = 1;
-            clearInterval(timerInterval);
-        }
+    // Shrink width from 100% → 0%
+    timerBar.style.width = (100 - progress * 100) + "%";
 
-        timerBar.style.top = (progress * 100) + "%";
-    }, 16);
+    if (progress < 1) {
+        animationFrame = requestAnimationFrame(animateTimer);
+    }
 }
 
-function resetTimer() {
-    timerBar.style.top = "0%";
-    startTimer();
+function startTimer() {
+    cancelAnimationFrame(animationFrame);
+    startTime = Date.now();
+    timerBar.style.width = "100%";
+    animationFrame = requestAnimationFrame(animateTimer);
 }
 
 document.addEventListener("keydown", function(event) {
     const key = event.key;
 
-    // Reset timer on ANY key press
-    resetTimer();
+    // Reset timer on any key
+    startTimer();
 
-    // Only allow digits 0–9
+    // Only allow digits
     if (key >= "0" && key <= "9") {
         typedNumbers += key;
         document.getElementById("displayBox").innerText = typedNumbers;
     }
 
-    // Backspace support
     if (key === "Backspace") {
         typedNumbers = typedNumbers.slice(0, -1);
         document.getElementById("displayBox").innerText = typedNumbers;
     }
 });
 
-// Start timer immediately
+// Start immediately
 startTimer();
 </script>
-
-</body>
-</html>
