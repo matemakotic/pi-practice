@@ -15,6 +15,7 @@
         color: #111;
         font-family: 'Courier New', monospace;
     }
+    
 
     .container {
         display: flex;
@@ -72,7 +73,8 @@
 </head>
 
 <body>
-
+    
+<div id="gameMessage" style="text-align:center; margin-bottom:15px;"></div>
 <div class="container">
     <div class="box" id="displayBox"></div>
     <div class="timer-container">
@@ -83,10 +85,12 @@
 <script>
 let typedNumbers = "";
 let timerBar = document.getElementById("timerBar");
+let displayBox = document.getElementById("displayBox");
 
 let startTime;
-const duration = 5000; // 5 seconds
+const duration = 5000;
 let animationFrame;
+let gameActive = true;
 
 function animateTimer() {
     let elapsed = Date.now() - startTime;
@@ -94,12 +98,12 @@ function animateTimer() {
 
     if (progress >= 1) {
         progress = 1;
+        endGame();
     }
 
-    // Shrink width from 100% → 0%
     timerBar.style.width = (100 - progress * 100) + "%";
 
-    if (progress < 1) {
+    if (progress < 1 && gameActive) {
         animationFrame = requestAnimationFrame(animateTimer);
     }
 }
@@ -111,24 +115,41 @@ function startTimer() {
     animationFrame = requestAnimationFrame(animateTimer);
 }
 
+function endGame() {
+    gameActive = false;
+    cancelAnimationFrame(animationFrame);
+
+    document.getElementById("gameMessage").innerHTML = `
+        <div style="font-size:24px; margin-bottom:10px;">GAME OVER</div>
+        <button onclick="resetGame()">Play Again</button>
+    `;
+}
+
+function resetGame() {
+    typedNumbers = "";
+    displayBox.innerText = "";
+    document.getElementById("gameMessage").innerHTML = "";
+    gameActive = true;
+    startTimer();
+}
+
 document.addEventListener("keydown", function(event) {
+    if (!gameActive) return;
+
     const key = event.key;
 
-    // Reset timer on any key
     startTimer();
 
-    // Only allow digits
     if (key >= "0" && key <= "9") {
         typedNumbers += key;
-        document.getElementById("displayBox").innerText = typedNumbers;
+        displayBox.innerText = typedNumbers;
     }
 
     if (key === "Backspace") {
         typedNumbers = typedNumbers.slice(0, -1);
-        document.getElementById("displayBox").innerText = typedNumbers;
+        displayBox.innerText = typedNumbers;
     }
 });
 
-// Start immediately
 startTimer();
 </script>
