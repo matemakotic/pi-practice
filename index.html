@@ -1,129 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi Practice</title>
+<title>Number Box</title>
+
 <style>
     body {
-        font-family:  'Courier New', monospace;
-        text-align: center;
-        margin: 20px;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         background: #111;
-        color: #FFF;
+        color: white;
+        font-family: monospace;
     }
-    input {
+
+    .box {
+        border: 3px solid #3b82f6;
+        padding: 20px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
         font-size: 24px;
-        text-align: center;
-        width: 60px;
     }
-    .hearts {
-        font-size: 28px;
-        margin: 10px;
+
+    /* Desktop size */
+    @media (min-width: 600px) {
+        .box {
+            width: 33vw;
+            height: 33vh;
+        }
     }
-    .digit-display {
-        font-size: 20px;
-        margin: 15px;
-        color: #aaa;
-    }
-    button {
-        padding: 8px 16px;
-        font-size: 16px;
-        margin: 5px;
+
+    /* Phone size */
+    @media (max-width: 599px) {
+        .box {
+            width: 95vw;
+            height: 33vh;
+        }
     }
 </style>
 </head>
+
 <body>
 
-<h1>π Trainer</h1>
-
-<div>
-    Start at digit:
-    <input type="number" id="startIndex" value="1" min="1">
-    <button onclick="startGame()">Start</button>
-</div>
-
-<div class="hearts" id="hearts"></div>
-
-<div>
-    Next digit:
-    <div id="nextDigit" style="font-size: 40px; margin: 10px;"></div>
-</div>
-
-<input type="text" id="userInput" maxlength="1" disabled>
-
-<div class="digit-display">
-    Current Position: <span id="position"></span>
-</div>
+<div class="box" id="displayBox"></div>
 
 <script>
-const piDigits =
-"3141592653589793238462643383279502884197169399375105820974944592" +
-"3078164062862089986280348253421170679821480865132823066470938446" +
-"0955058223172535940812848111745028410270193852110555964462294895";
+let typedNumbers = "";
 
-let currentIndex = 0;
-let lives = 3;
-let gameActive = false;
+document.addEventListener("keydown", function(event) {
+    const key = event.key;
 
-function updateHearts() {
-    document.getElementById("hearts").innerText =
-        "❤️".repeat(lives) + "🖤".repeat(3 - lives);
-}
-
-function startGame() {
-    const start = parseInt(document.getElementById("startIndex").value) - 1;
-
-    if (start < 0 || start >= piDigits.length) {
-        alert("Invalid start position.");
-        return;
+    // Only allow digits 0–9
+    if (key >= "0" && key <= "9") {
+        typedNumbers += key;
+        document.getElementById("displayBox").innerText = typedNumbers;
     }
 
-    currentIndex = start;
-    lives = 3;
-    gameActive = true;
-
-    updateHearts();
-    updateDisplay();
-
-    const input = document.getElementById("userInput");
-    input.disabled = false;
-    input.value = "";
-    input.focus();
-}
-
-function updateDisplay() {
-    document.getElementById("nextDigit").innerText =
-        piDigits[currentIndex];
-    document.getElementById("position").innerText =
-        currentIndex + 1;
-}
-
-document.getElementById("userInput").addEventListener("input", function(e) {
-    if (!gameActive) return;
-
-    const guess = e.target.value;
-    e.target.value = "";
-
-    if (guess === piDigits[currentIndex]) {
-        currentIndex++;
-        if (currentIndex >= piDigits.length) {
-            alert("You reached the end!");
-            gameActive = false;
-            return;
-        }
-    } else {
-        lives--;
-        updateHearts();
-        if (lives === 0) {
-            alert("Game over!");
-            gameActive = false;
-            document.getElementById("userInput").disabled = true;
-            return;
-        }
+    // Backspace support
+    if (key === "Backspace") {
+        typedNumbers = typedNumbers.slice(0, -1);
+        document.getElementById("displayBox").innerText = typedNumbers;
     }
-
-    updateDisplay();
 });
 </script>
 
