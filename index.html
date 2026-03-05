@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Number Box</title>
+<title>Number Box with Vertical Timer</title>
 
 <style>
     body {
@@ -15,12 +15,11 @@
         color: #111;
         font-family: 'Courier New', monospace;
     }
-    
 
     .container {
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        flex-direction: row; /* side by side */
+        align-items: flex-start;
     }
 
     .box {
@@ -31,11 +30,12 @@
         font-size: 12px;
     }
 
+    /* Vertical timer container */
     .timer-container {
-        width: 100%;
-        height: 10px;
+        width: 15px; /* thin vertical bar */
+        margin-left: 10px;
+        height: 33vh; /* match box height */
         background: #ddd;
-        margin-top: 10px;
         position: relative;
         overflow: hidden;
     }
@@ -44,41 +44,49 @@
         width: 100%;
         height: 100%;
         background: #3b82f6;
+        position: absolute;
+        top: 0; /* starts full height, shrinks downward */
     }
 
-    /* Desktop */
+    /* Desktop size */
     @media (min-width: 600px) {
         .box {
             width: 33vw;
             height: 33vh;
         }
-
         .timer-container {
-            width: 33vw;
+            height: 33vh;
         }
     }
 
-    /* Phone */
+    /* Phone size */
     @media (max-width: 599px) {
         .box {
-            width: 95vw;
+            width: 70vw;
             height: 33vh;
         }
-
         .timer-container {
-            width: 95vw;
+            height: 33vh;
         }
+    }
+
+    #gameMessage {
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 24px;
     }
 </style>
 </head>
 
 <body>
-    
-<div id="gameMessage" style="text-align:center; margin-bottom:15px;"></div>
-<div class="container">
-    <div class="box" id="displayBox"></div>
-    <div class="timer-container">
-        <div class="timer-bar" id="timerBar"></div>
+
+<div>
+    <div id="gameMessage"></div>
+    <div class="container">
+        <div class="box" id="displayBox"></div>
+        <div class="timer-container">
+            <div class="timer-bar" id="timerBar"></div>
+        </div>
     </div>
 </div>
 
@@ -86,11 +94,11 @@
 let typedNumbers = "";
 let timerBar = document.getElementById("timerBar");
 let displayBox = document.getElementById("displayBox");
-
-let startTime;
-const duration = 5000;
-let animationFrame;
 let gameActive = true;
+
+const duration = 5000; // 5 seconds
+let startTime;
+let animationFrame;
 
 function animateTimer() {
     let elapsed = Date.now() - startTime;
@@ -101,7 +109,8 @@ function animateTimer() {
         endGame();
     }
 
-    timerBar.style.width = (100 - progress * 100) + "%";
+    // Shrink bar height from 100% → 0%
+    timerBar.style.height = (100 - progress * 100) + "%";
 
     if (progress < 1 && gameActive) {
         animationFrame = requestAnimationFrame(animateTimer);
@@ -111,16 +120,21 @@ function animateTimer() {
 function startTimer() {
     cancelAnimationFrame(animationFrame);
     startTime = Date.now();
-    timerBar.style.width = "100%";
+    timerBar.style.height = "100%";
     animationFrame = requestAnimationFrame(animateTimer);
+}
+
+function resetTimer() {
+    if (!gameActive) return;
+    timerBar.style.height = "100%";
+    startTimer();
 }
 
 function endGame() {
     gameActive = false;
     cancelAnimationFrame(animationFrame);
-
     document.getElementById("gameMessage").innerHTML = `
-        <div style="font-size:24px; margin-bottom:10px;">GAME OVER</div>
+        <div>GAME OVER</div>
         <button onclick="resetGame()">Play Again</button>
     `;
 }
@@ -138,7 +152,7 @@ document.addEventListener("keydown", function(event) {
 
     const key = event.key;
 
-    startTimer();
+    resetTimer(); // reset on any key
 
     if (key >= "0" && key <= "9") {
         typedNumbers += key;
@@ -151,5 +165,9 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
+// Start timer immediately
 startTimer();
 </script>
+
+</body>
+</html>
